@@ -1,0 +1,1236 @@
+import { useState } from "react";
+
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #050810;
+    --surface: #0c1020;
+    --border: #1a2340;
+    --accent: #ff3c3c;
+    --accent2: #ff8c00;
+    --accent3: #00d4ff;
+    --text: #e8eaf0;
+    --muted: #6b7494;
+    --green: #00ff88;
+    --yellow: #ffd700;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; }
+
+  .app {
+    min-height: 100vh;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at 20% 0%, rgba(255,60,60,0.07) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 0%, rgba(0,212,255,0.05) 0%, transparent 50%);
+  }
+
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(12,16,32,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .badge {
+    background: rgba(0,255,136,0.1);
+    border: 1px solid rgba(0,255,136,0.3);
+    color: var(--green);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+  }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  .hero {
+    text-align: center;
+    padding: 60px 0 48px;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 .highlight { color: var(--accent); }
+  .hero h1 .highlight2 { color: var(--accent3); }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 18px;
+    max-width: 560px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 56px;
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 90px;
+  }
+
+  .pipeline-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    border: 1px solid;
+    position: relative;
+  }
+
+  .pipeline-icon::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 14px;
+    opacity: 0.15;
+  }
+
+  .step-red { border-color: rgba(255,60,60,0.4); background: rgba(255,60,60,0.08); }
+  .step-orange { border-color: rgba(255,140,0,0.4); background: rgba(255,140,0,0.08); }
+  .step-yellow { border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.08); }
+  .step-blue { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.08); }
+  .step-green { border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.08); }
+
+  .pipeline-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .pipeline-arrow {
+    color: var(--border);
+    font-size: 20px;
+    padding: 0 4px;
+    margin-bottom: 20px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 32px;
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    white-space: nowrap;
+    transition: all 0.15s;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.3px;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .content-section { animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .card-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: rgba(255,60,60,0.1);
+    border: 1px solid rgba(255,60,60,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .steps-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .step-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,60,60,0.1);
+    border: 1px solid rgba(255,60,60,0.3);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-content { flex: 1; }
+  .step-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .step-desc { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  .step-link {
+    color: var(--accent3);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,212,255,0.3);
+  }
+
+  .code-block {
+    background: #060a15;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-x: auto;
+    position: relative;
+    margin-top: 12px;
+  }
+
+  .code-block pre { white-space: pre; color: #c9d1d9; }
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .com { color: #6a737d; }
+  .fn { color: #d2a8ff; }
+  .var { color: #ffa657; }
+  .num { color: #79c0ff; }
+
+  .copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--accent3); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    transition: border-color 0.15s;
+  }
+
+  .tool-card:hover { border-color: rgba(255,60,60,0.3); }
+
+  .tool-icon { font-size: 28px; margin-bottom: 10px; }
+  .tool-name { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+  .tool-purpose { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+  .tool-free {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--green);
+    background: rgba(0,255,136,0.08);
+    border: 1px solid rgba(0,255,136,0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .warning-box {
+    background: rgba(255,215,0,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c8b560;
+  }
+
+  .info-box {
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6bb8c8;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+  .tag {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .tag-blue { background: rgba(0,212,255,0.1); color: var(--accent3); border: 1px solid rgba(0,212,255,0.2); }
+  .tag-red { background: rgba(255,60,60,0.1); color: var(--accent); border: 1px solid rgba(255,60,60,0.2); }
+  .tag-green { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.2); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  .workflow-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .workflow-item:last-child { border-bottom: none; }
+  .workflow-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+  .workflow-dot.green { background: var(--green); }
+  .workflow-dot.blue { background: var(--accent3); }
+  .workflow-info { flex: 1; }
+  .workflow-title { font-weight: 700; font-size: 14px; }
+  .workflow-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  .schedule-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+    width: 80px;
+    flex-shrink: 0;
+  }
+  .schedule-label { font-size: 14px; }
+  .schedule-tag {
+    margin-left: auto;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .pipeline-arrow { display: none; }
+    .stats-row { gap: 20px; }
+    .tab { padding: 8px 12px; font-size: 12px; }
+  }
+`;
+
+const TABS = [
+  { id: "overview", label: "🗺 Overview" },
+  { id: "setup", label: "⚙️ Setup" },
+  { id: "scripts", label: "🐍 Python Scripts" },
+  { id: "actions", label: "⚡ GitHub Actions" },
+  { id: "tools", label: "🛠 Free Tools" },
+  { id: "schedule", label: "📅 Schedule" },
+];
+
+function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false);
+  const handle = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button className={`copy-btn${copied ? " copied" : ""}`} onClick={handle}>
+      {copied ? "✓ copied" : "copy"}
+    </button>
+  );
+}
+
+const mainScript = `#!/usr/bin/env python3
+# main.py — YouTube AI Automation Pipeline
+
+import os, json, random
+from topic_generator import get_topic
+from script_writer import write_script
+from tts_engine import generate_voiceover
+from video_builder import build_video
+from uploader import upload_to_youtube
+
+def main():
+    print("🤖 Starting YouTube AI Pipeline...")
+
+    # Step 1: Generate topic
+    niche   = os.getenv("CHANNEL_NICHE", "tech facts")
+    topic   = get_topic(niche)
+    print(f"📌 Topic: {topic}")
+
+    # Step 2: Write script
+    script  = write_script(topic)
+    print(f"📝 Script written ({len(script)} chars)")
+
+    # Step 3: Generate voiceover
+    audio_path = generate_voiceover(script, voice="en-US-GuyNeural")
+    print(f"🎤 Audio: {audio_path}")
+
+    # Step 4: Build video
+    video_path = build_video(topic, script, audio_path)
+    print(f"🎬 Video: {video_path}")
+
+    # Step 5: Upload to YouTube
+    result = upload_to_youtube(
+        video_path  = video_path,
+        title       = topic,
+        description = script[:400] + "\\n\\n#Shorts #AI",
+        tags        = ["shorts", "ai", niche],
+        category    = "22"   # People & Blogs
+    )
+    print(f"✅ Uploaded! ID: {result['id']}")
+
+if __name__ == "__main__":
+    main()
+`;
+
+const topicScript = `# topic_generator.py
+import anthropic, random, os
+
+def get_topic(niche: str) -> str:
+    """Generate a viral-worthy video topic using Claude."""
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+    prompt = f"""Generate ONE punchy, clickable YouTube Shorts topic about: {niche}
+Rules:
+- Under 60 characters
+- Creates curiosity or surprise
+- No hashtags, no emojis
+- Just the title, nothing else
+Examples: "Why Your Phone Battery Degrades So Fast"
+          "The Hidden Trick in Every ATM"
+          "5 Things You Never Knew About Elevators" """
+
+    msg = client.messages.create(
+        model="claude-haiku-4-5",   # Cheapest/fastest
+        max_tokens=80,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return msg.content[0].text.strip()
+`;
+
+const scriptScript = `# script_writer.py
+import anthropic, os
+
+def write_script(topic: str) -> str:
+    """Write a 45-60 second YouTube Shorts script."""
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+    msg = client.messages.create(
+        model="claude-haiku-4-5",
+        max_tokens=400,
+        messages=[{
+            "role": "user",
+            "content": f"""Write a YouTube Shorts voiceover script for: "{topic}"
+Format: Plain spoken text only, no stage directions.
+Length: 90-120 words (fits in ~45 seconds).
+Style: Conversational, engaging, ends with a surprising fact.
+No intro like "Hey guys", start directly with the hook."""
+        }]
+    )
+    return msg.content[0].text.strip()
+`;
+
+const ttsScript = `# tts_engine.py — FREE Microsoft Edge TTS
+import asyncio, os
+import edge_tts   # pip install edge-tts
+
+VOICES = [
+    "en-US-GuyNeural",     # Male, deep
+    "en-US-JennyNeural",   # Female, clear
+    "en-GB-RyanNeural",    # British male
+    "en-AU-WilliamNeural", # Australian male
+]
+
+def generate_voiceover(text: str, voice: str = "en-US-GuyNeural") -> str:
+    """Generate speech audio from text. Completely FREE."""
+    output = f"/tmp/voiceover_{hash(text) % 99999}.mp3"
+
+    async def _generate():
+        communicate = edge_tts.Communicate(
+            text  = text,
+            voice = voice,
+            rate  = "+8%",    # Slightly faster for Shorts
+            pitch = "+0Hz"
+        )
+        await communicate.save(output)
+
+    asyncio.run(_generate())
+    return output
+`;
+
+const videoScript = `# video_builder.py — Build video from images + audio
+import os, requests, random, textwrap
+from moviepy.editor import *
+from PIL import Image, ImageDraw, ImageFont
+import numpy as np
+
+PEXELS_KEY = os.getenv("PEXELS_API_KEY")   # Free at pexels.com/api
+
+def get_background_clips(query: str, count: int = 4) -> list:
+    """Fetch free stock video clips from Pexels."""
+    url = "https://api.pexels.com/videos/search"
+    headers = {"Authorization": PEXELS_KEY}
+    params  = {"query": query, "per_page": count, "size": "medium"}
+
+    r = requests.get(url, headers=headers, params=params)
+    data = r.json()
+    paths = []
+
+    for video in data.get("videos", [])[:count]:
+        file_url = video["video_files"][0]["link"]
+        path = f"/tmp/clip_{video['id']}.mp4"
+        if not os.path.exists(path):
+            with open(path, "wb") as f:
+                f.write(requests.get(file_url).content)
+        paths.append(path)
+
+    return paths
+
+def make_text_overlay(text: str, size=(1080, 1920)) -> np.ndarray:
+    """Generate a text frame as numpy array."""
+    img  = Image.new("RGBA", size, (0,0,0,160))
+    draw = ImageDraw.Draw(img)
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 52)
+    except:
+        font = ImageFont.load_default()
+
+    wrapped = textwrap.fill(text, 22)
+    draw.multiline_text((540, 960), wrapped, font=font, fill="white",
+                        anchor="mm", align="center",
+                        stroke_width=3, stroke_fill="black")
+    return np.array(img.convert("RGB"))
+
+def build_video(topic: str, script: str, audio_path: str) -> str:
+    """Assemble final 9:16 video with background + audio + text."""
+    audio    = AudioFileClip(audio_path)
+    duration = audio.duration
+    output   = f"/tmp/final_{hash(topic) % 99999}.mp4"
+
+    # Try Pexels video clips first
+    clips = []
+    try:
+        clip_paths = get_background_clips(topic.split()[-1], count=3)
+        for cp in clip_paths:
+            vc = VideoFileClip(cp).resize((1080, 1920))
+            clips.append(vc.subclip(0, min(vc.duration, duration / len(clip_paths))))
+    except:
+        pass  # Fallback to solid colour background
+
+    if clips:
+        bg = concatenate_videoclips(clips).subclip(0, duration)
+    else:
+        bg = ColorClip((1080, 1920), color=(10,10,30), duration=duration)
+
+    # Text overlay with topic title
+    txt_frames = [make_text_overlay(topic, (1080, 1920))] * int(duration * 30)
+    txt_clip   = (ImageSequenceClip(txt_frames, fps=30)
+                  .set_duration(duration)
+                  .set_opacity(0.85))
+
+    final = (CompositeVideoClip([bg, txt_clip])
+             .set_audio(audio))
+
+    final.write_videofile(output, fps=30, codec="libx264",
+                          audio_codec="aac", logger=None)
+    return output
+`;
+
+const uploaderScript = `# uploader.py — YouTube Data API v3 (FREE)
+import os
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+
+def upload_to_youtube(video_path, title, description, tags, category="22"):
+    """Upload video to YouTube. Fully free via YouTube Data API v3."""
+
+    # Load saved OAuth credentials (created once during setup)
+    creds = Credentials.from_authorized_user_file(
+        "youtube_token.json",
+        scopes=["https://www.googleapis.com/auth/youtube.upload"]
+    )
+
+    youtube = build("youtube", "v3", credentials=creds)
+
+    body = {
+        "snippet": {
+            "title":       title[:100],
+            "description": description,
+            "tags":        tags,
+            "categoryId":  category,
+        },
+        "status": {
+            "privacyStatus":           "public",
+            "selfDeclaredMadeForKids": False,
+        }
+    }
+
+    media = MediaFileUpload(video_path, mimetype="video/mp4",
+                            resumable=True, chunksize=1024*1024)
+
+    request = youtube.videos().insert(
+        part="snippet,status", body=body, media_body=media
+    )
+
+    response = None
+    while response is None:
+        status, response = request.next_chunk()
+        if status:
+            print(f"  Upload {int(status.progress() * 100)}%")
+
+    return response
+`;
+
+const actionsYml = `# .github/workflows/daily_upload.yml
+name: 🤖 Daily YouTube AI Upload
+
+on:
+  schedule:
+    # Video 1: 8 AM UTC daily
+    - cron: "0 8 * * *"
+    # Video 2 (Short): 6 PM UTC daily
+    - cron: "0 18 * * *"
+  workflow_dispatch:    # Manual trigger button
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install edge-tts moviepy pillow
+          pip install anthropic google-api-python-client
+          pip install google-auth-oauthlib requests numpy
+
+      - name: Write YouTube credentials
+        env:
+          YOUTUBE_TOKEN: \${{ secrets.YOUTUBE_TOKEN }}
+        run: echo "\$YOUTUBE_TOKEN" > youtube_token.json
+
+      - name: Run AI pipeline
+        env:
+          ANTHROPIC_API_KEY: \${{ secrets.ANTHROPIC_API_KEY }}
+          PEXELS_API_KEY:    \${{ secrets.PEXELS_API_KEY }}
+          CHANNEL_NICHE:     \${{ secrets.CHANNEL_NICHE }}
+        run: python main.py
+`;
+
+const reqsTxt = `edge-tts>=6.1.9
+moviepy>=1.0.3
+Pillow>=10.0.0
+anthropic>=0.25.0
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.1.0
+requests>=2.31.0
+numpy>=1.24.0`;
+
+const oauthSetup = `# oauth_setup.py — Run this ONCE locally to get youtube_token.json
+from google_auth_oauthlib.flow import InstalledAppFlow
+
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+
+flow = InstalledAppFlow.from_client_secrets_file(
+    "client_secrets.json", SCOPES
+)
+creds = flow.run_local_server(port=0)
+
+# Save token — paste its contents into GitHub Secret: YOUTUBE_TOKEN
+with open("youtube_token.json", "w") as f:
+    f.write(creds.to_json())
+
+print("✅ youtube_token.json saved! Add it to GitHub Secrets.")`;
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  const copy = (key, text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="app">
+        <header className="header">
+          <div className="logo">
+            <div className="logo-icon">▶</div>
+            <div className="logo-text">
+              YT<span>Auto</span>AI
+            </div>
+          </div>
+          <div className="badge">100% FREE</div>
+        </header>
+
+        <main className="main">
+          {/* HERO */}
+          <div className="hero">
+            <h1>
+              <span className="highlight">Fully Automated</span>
+              <br />
+              YouTube Channel
+              <br />
+              <span className="highlight2">Powered by AI</span>
+            </h1>
+            <p>
+              Post 1–2 videos daily on autopilot. Zero monthly cost, zero manual
+              work. GitHub Actions + free APIs do everything.
+            </p>
+            <div className="stats-row">
+              <div className="stat">
+                <div className="stat-num" style={{ color: "#00ff88" }}>$0</div>
+                <div className="stat-label">Monthly Cost</div>
+              </div>
+              <div className="stat">
+                <div className="stat-num" style={{ color: "#ff3c3c" }}>2/day</div>
+                <div className="stat-label">Videos Posted</div>
+              </div>
+              <div className="stat">
+                <div className="stat-num" style={{ color: "#00d4ff" }}>0</div>
+                <div className="stat-label">Manual Work</div>
+              </div>
+              <div className="stat">
+                <div className="stat-num" style={{ color: "#ffd700" }}>∞</div>
+                <div className="stat-label">Auto-Scaling</div>
+              </div>
+            </div>
+
+            {/* Pipeline */}
+            <div className="pipeline">
+              {[
+                { icon: "🧠", label: "Topic AI", cls: "step-red" },
+                null,
+                { icon: "📝", label: "Script AI", cls: "step-orange" },
+                null,
+                { icon: "🎤", label: "TTS Audio", cls: "step-yellow" },
+                null,
+                { icon: "🎬", label: "Build Video", cls: "step-blue" },
+                null,
+                { icon: "🚀", label: "Auto Upload", cls: "step-green" },
+              ].map((item, i) =>
+                item === null ? (
+                  <div key={i} className="pipeline-arrow">→</div>
+                ) : (
+                  <div key={i} className="pipeline-step">
+                    <div className={`pipeline-icon ${item.cls}`}>{item.icon}</div>
+                    <div className="pipeline-label">{item.label}</div>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* TABS */}
+          <div className="tabs">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                className={`tab${activeTab === t.id ? " active" : ""}`}
+                onClick={() => setActiveTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* TAB CONTENT */}
+          <div className="content-section" key={activeTab}>
+            {activeTab === "overview" && <OverviewTab />}
+            {activeTab === "setup" && <SetupTab copy={copy} copiedKey={copiedKey} />}
+            {activeTab === "scripts" && <ScriptsTab copy={copy} copiedKey={copiedKey} />}
+            {activeTab === "actions" && <ActionsTab copy={copy} copiedKey={copiedKey} />}
+            {activeTab === "tools" && <ToolsTab />}
+            {activeTab === "schedule" && <ScheduleTab />}
+          </div>
+        </main>
+      </div>
+    </>
+  );
+}
+
+function OverviewTab() {
+  return (
+    <>
+      <div className="card">
+        <div className="card-header">
+          <div className="card-icon">🗺</div>
+          <div>
+            <div className="card-title">How It Works</div>
+            <div className="card-subtitle">The full automation pipeline</div>
+          </div>
+        </div>
+        {[
+          { dot: "", title: "1. GitHub Actions triggers daily", desc: "A cron job runs at 8 AM and 6 PM UTC every day — completely free (2,000 min/month free on GitHub)." },
+          { dot: "blue", title: "2. Claude AI picks a viral topic", desc: "Claude Haiku (cheapest model, ~$0.001 per video) generates a compelling, niche-specific title for your channel." },
+          { dot: "blue", title: "3. Claude writes the script", desc: "A tight 90–120 word voiceover script is generated — perfect for a 45–60 second Short." },
+          { dot: "green", title: "4. edge-tts speaks it aloud (FREE)", desc: "Microsoft's Edge TTS is completely free and produces human-quality voices with no API key needed." },
+          { dot: "green", title: "5. MoviePy assembles the video", desc: "Free stock footage from Pexels API (free tier: 200 req/hr) is overlaid with text and audio into a 9:16 MP4." },
+          { dot: "", title: "6. YouTube Data API uploads it", desc: "The finished video is automatically published to your channel via the free YouTube Data API v3." },
+        ].map((item, i) => (
+          <div key={i} className="workflow-item">
+            <div className={`workflow-dot${item.dot ? " " + item.dot : ""}`} />
+            <div className="workflow-info">
+              <div className="workflow-title">{item.title}</div>
+              <div className="workflow-desc">{item.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="two-col">
+        <div className="card">
+          <div className="card-title" style={{ marginBottom: 14 }}>💰 Cost Breakdown</div>
+          {[
+            ["GitHub Actions", "FREE (2000 min/mo)"],
+            ["edge-tts (voiceover)", "FREE (unlimited)"],
+            ["Pexels API (footage)", "FREE (200 req/hr)"],
+            ["YouTube Data API", "FREE (10,000 units/day)"],
+            ["Claude Haiku AI", "~$0.001 per video"],
+            ["GitHub repo hosting", "FREE"],
+          ].map(([k, v]) => (
+            <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border)", fontSize: 14 }}>
+              <span style={{ color: "var(--muted)" }}>{k}</span>
+              <span style={{ color: "var(--green)", fontFamily: "Space Mono, monospace", fontSize: 12, fontWeight: 700 }}>{v}</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 14, padding: "10px 14px", background: "rgba(0,255,136,0.05)", border: "1px solid rgba(0,255,136,0.15)", borderRadius: 8, fontSize: 13, color: "#6bcf99" }}>
+            🎉 Effective cost: <strong>$0–$1/month</strong> depending on video volume. Claude API free tier may cover early months.
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-title" style={{ marginBottom: 14 }}>📁 Repo Structure</div>
+          <div className="code-block">
+            <pre style={{ color: "var(--muted)", fontSize: 12 }}>{`your-youtube-bot/
+├── main.py
+├── topic_generator.py
+├── script_writer.py
+├── tts_engine.py
+├── video_builder.py
+├── uploader.py
+├── requirements.txt
+├── youtube_token.json  ← secret
+└── .github/
+    └── workflows/
+        └── daily_upload.yml`}</pre>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function SetupTab({ copy, copiedKey }) {
+  return (
+    <>
+      <div className="warning-box">
+        <span>⚠️</span>
+        <span>Complete these steps <strong>in order</strong>. Steps 1–4 are one-time setup that take ~30 minutes total.</span>
+      </div>
+
+      <div className="card">
+        <div className="card-header">
+          <div className="card-icon">⚙️</div>
+          <div>
+            <div className="card-title">One-Time Setup Guide</div>
+            <div className="card-subtitle">Do this once, then it runs forever</div>
+          </div>
+        </div>
+        <div className="steps-list">
+          {[
+            {
+              n: "01",
+              title: "Create a GitHub Account & Repository",
+              desc: <>Go to <a className="step-link" href="https://github.com" target="_blank">github.com</a> → New repository → Name it <code style={{background:"rgba(255,255,255,0.07)",padding:"1px 6px",borderRadius:4,fontFamily:"Space Mono,monospace",fontSize:12}}>youtube-ai-bot</code> → Public or Private → Create.</>,
+            },
+            {
+              n: "02",
+              title: "Get a Free Anthropic API Key",
+              desc: <>Go to <a className="step-link" href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → Sign up → API Keys → Create Key. New accounts get free credits. Claude Haiku costs ~$0.001 per video.</>,
+            },
+            {
+              n: "03",
+              title: "Get a Free Pexels API Key",
+              desc: <>Go to <a className="step-link" href="https://www.pexels.com/api" target="_blank">pexels.com/api</a> → Sign up → Your API key is on the dashboard. 200 requests/hour is more than enough.</>,
+            },
+            {
+              n: "04",
+              title: "Enable YouTube Data API & Get OAuth Token",
+              desc: <>Go to <a className="step-link" href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → New Project → Enable "YouTube Data API v3" → Create OAuth 2.0 credentials → Download <code style={{background:"rgba(255,255,255,0.07)",padding:"1px 6px",borderRadius:4,fontFamily:"Space Mono,monospace",fontSize:12}}>client_secrets.json</code>. Then run <code style={{background:"rgba(255,255,255,0.07)",padding:"1px 6px",borderRadius:4,fontFamily:"Space Mono,monospace",fontSize:12}}>python oauth_setup.py</code> locally to get your token.</>,
+            },
+            {
+              n: "05",
+              title: "Add GitHub Secrets",
+              desc: "In your GitHub repo: Settings → Secrets → New repository secret. Add: ANTHROPIC_API_KEY, PEXELS_API_KEY, YOUTUBE_TOKEN (paste entire contents of youtube_token.json), and CHANNEL_NICHE (e.g. 'tech facts').",
+            },
+            {
+              n: "06",
+              title: "Upload All Python Files",
+              desc: "Copy all the files from the Scripts tab into your repo (main.py, topic_generator.py, etc.) and commit. Also add requirements.txt and the GitHub Actions workflow file.",
+            },
+            {
+              n: "07",
+              title: "Trigger a Test Run",
+              desc: "Go to Actions tab in your GitHub repo → Select 'Daily YouTube AI Upload' → Run workflow. Watch the logs. If the video uploads successfully, you're done!",
+            },
+          ].map((s) => (
+            <div key={s.n} className="step-item">
+              <div className="step-num">{s.n}</div>
+              <div className="step-content">
+                <div className="step-title">{s.title}</div>
+                <div className="step-desc">{s.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>requirements.txt</div>
+        <div className="code-block">
+          <CopyButton text={reqsTxt} />
+          <pre>{reqsTxt}</pre>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CodeCard({ title, subtitle, icon, code, id, copy, copiedKey }) {
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div className="card-icon">{icon}</div>
+        <div>
+          <div className="card-title">{title}</div>
+          {subtitle && <div className="card-subtitle">{subtitle}</div>}
+        </div>
+        <button
+          className={`copy-btn${copiedKey === id ? " copied" : ""}`}
+          style={{ marginLeft: "auto" }}
+          onClick={() => copy(id, code)}
+        >
+          {copiedKey === id ? "✓ copied" : "copy all"}
+        </button>
+      </div>
+      <div className="code-block" style={{ marginTop: 0 }}>
+        <pre style={{ color: "#c9d1d9" }}>{code}</pre>
+      </div>
+    </div>
+  );
+}
+
+function ScriptsTab({ copy, copiedKey }) {
+  return (
+    <>
+      <div className="info-box">
+        <span>💡</span>
+        <span>All scripts are ready to use. Copy them into your GitHub repo exactly as shown. No modifications needed — just set your GitHub Secrets.</span>
+      </div>
+      <CodeCard title="main.py" subtitle="Entry point — orchestrates the full pipeline" icon="🤖" code={mainScript} id="main" copy={copy} copiedKey={copiedKey} />
+      <CodeCard title="topic_generator.py" subtitle="Uses Claude Haiku to create viral video topics" icon="🧠" code={topicScript} id="topic" copy={copy} copiedKey={copiedKey} />
+      <CodeCard title="script_writer.py" subtitle="AI writes a 90–120 word voiceover script" icon="📝" code={scriptScript} id="script" copy={copy} copiedKey={copiedKey} />
+      <CodeCard title="tts_engine.py" subtitle="Free Microsoft Edge TTS — no API key needed" icon="🎤" code={ttsScript} id="tts" copy={copy} copiedKey={copiedKey} />
+      <CodeCard title="video_builder.py" subtitle="Assembles 9:16 video with Pexels footage + audio" icon="🎬" code={videoScript} id="video" copy={copy} copiedKey={copiedKey} />
+      <CodeCard title="uploader.py" subtitle="YouTube Data API v3 — free upload" icon="🚀" code={uploaderScript} id="uploader" copy={copy} copiedKey={copiedKey} />
+      <CodeCard title="oauth_setup.py" subtitle="Run this once locally to get youtube_token.json" icon="🔑" code={oauthSetup} id="oauth" copy={copy} copiedKey={copiedKey} />
+    </>
+  );
+}
+
+function ActionsTab({ copy, copiedKey }) {
+  return (
+    <>
+      <div className="info-box">
+        <span>⚡</span>
+        <span>GitHub Actions is the engine that runs everything automatically — completely free for public repos and 2,000 minutes/month for private repos.</span>
+      </div>
+      <CodeCard
+        title=".github/workflows/daily_upload.yml"
+        subtitle="Triggers at 8 AM and 6 PM UTC daily"
+        icon="⚡"
+        code={actionsYml}
+        id="actions"
+        copy={copy}
+        copiedKey={copiedKey}
+      />
+      <div className="two-col">
+        <div className="card">
+          <div className="card-title" style={{ marginBottom: 14 }}>🔐 Required GitHub Secrets</div>
+          {[
+            ["ANTHROPIC_API_KEY", "Your Claude API key"],
+            ["PEXELS_API_KEY", "Your Pexels API key"],
+            ["YOUTUBE_TOKEN", "Contents of youtube_token.json"],
+            ["CHANNEL_NICHE", "e.g. 'amazing science facts'"],
+          ].map(([k, v]) => (
+            <div key={k} style={{ padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
+              <div style={{ fontFamily: "Space Mono,monospace", fontSize: 12, color: "var(--accent2)", marginBottom: 3 }}>{k}</div>
+              <div style={{ fontSize: 13, color: "var(--muted)" }}>{v}</div>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="card-title" style={{ marginBottom: 14 }}>📊 GitHub Actions Limits</div>
+          {[
+            ["Public repos", "Unlimited free minutes"],
+            ["Private repos", "2,000 min/month free"],
+            ["Each video run", "~15–20 minutes"],
+            ["2 videos/day", "~900 min/month"],
+            ["Conclusion", "✅ Well within free tier"],
+          ].map(([k, v]) => (
+            <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border)", fontSize: 13 }}>
+              <span style={{ color: "var(--muted)" }}>{k}</span>
+              <span style={{ color: k === "Conclusion" ? "var(--green)" : "var(--text)", fontWeight: k === "Conclusion" ? 700 : 400 }}>{v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ToolsTab() {
+  const tools = [
+    { icon: "🤖", name: "Claude Haiku", purpose: "AI script & topic generation. Fastest and cheapest Anthropic model.", free: "Free credits on signup" },
+    { icon: "🗣", name: "edge-tts", purpose: "Microsoft Edge's neural TTS. 40+ voices, no key needed.", free: "Completely FREE" },
+    { icon: "🎞", name: "MoviePy", purpose: "Python video editing: cut, merge, overlay text & audio.", free: "Open Source" },
+    { icon: "📷", name: "Pexels API", purpose: "HD stock video footage via API. 200 req/hour free tier.", free: "FREE tier" },
+    { icon: "🖼", name: "Pillow (PIL)", purpose: "Add text overlays, titles, and graphics on video frames.", free: "Open Source" },
+    { icon: "▶️", name: "YouTube Data API", purpose: "Official API to upload and manage YouTube videos.", free: "FREE (10k units/day)" },
+    { icon: "⚡", name: "GitHub Actions", purpose: "Scheduled automation runner. No server needed.", free: "FREE (2000 min/mo)" },
+    { icon: "🔐", name: "Google OAuth 2.0", purpose: "Secure YouTube auth. Run once, token refreshes automatically.", free: "FREE" },
+    { icon: "🎵", name: "Pixabay API", purpose: "Alternative free stock video & music source.", free: "FREE tier" },
+    { icon: "🐍", name: "Python 3.11", purpose: "Runtime for all scripts. Pre-installed on GitHub Actions.", free: "Open Source" },
+  ];
+  return (
+    <>
+      <div className="section-title">🛠 All Free Tools Used</div>
+      <div className="tools-grid">
+        {tools.map((t) => (
+          <div key={t.name} className="tool-card">
+            <div className="tool-icon">{t.icon}</div>
+            <div className="tool-name">{t.name}</div>
+            <div className="tool-purpose">{t.purpose}</div>
+            <span className="tool-free">{t.free}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function ScheduleTab() {
+  return (
+    <>
+      <div className="two-col">
+        <div className="card">
+          <div className="card-title" style={{ marginBottom: 16 }}>📅 Daily Upload Schedule</div>
+          {[
+            ["8:00 AM UTC", "Main video (60–90s)", "VIDEO", "var(--accent)"],
+            ["6:00 PM UTC", "YouTube Short (45s)", "SHORT", "var(--accent3)"],
+          ].map(([time, label, tag, color]) => (
+            <div key={time} className="schedule-row">
+              <div className="schedule-time">{time}</div>
+              <div className="schedule-label">{label}</div>
+              <div className="schedule-tag" style={{ background: `rgba(255,255,255,0.05)`, border: `1px solid ${color}`, color }}>{tag}</div>
+            </div>
+          ))}
+          <div style={{ marginTop: 16, fontSize: 13, color: "var(--muted)", lineHeight: 1.7 }}>
+            You can change the cron schedule in <code style={{ background: "rgba(255,255,255,0.07)", padding: "1px 5px", borderRadius: 4, fontFamily: "Space Mono,monospace", fontSize: 11 }}>daily_upload.yml</code> to any time zone or frequency. Use <a className="step-link" href="https://crontab.guru" target="_blank">crontab.guru</a> to generate cron expressions.
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-title" style={{ marginBottom: 16 }}>🎯 Niche Ideas That Work</div>
+          {[
+            ["tech facts", "💻"],
+            ["psychology tricks", "🧠"],
+            ["history mysteries", "🏛"],
+            ["science discoveries", "🔬"],
+            ["life hacks", "⚡"],
+            ["animal facts", "🐾"],
+            ["space exploration", "🚀"],
+            ["money tips", "💰"],
+          ].map(([niche, icon]) => (
+            <div key={niche} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderBottom: "1px solid var(--border)", fontSize: 14 }}>
+              <span>{icon}</span>
+              <span style={{ color: "var(--muted)" }}>{niche}</span>
+              <span style={{ marginLeft: "auto", fontFamily: "Space Mono,monospace", fontSize: 11, color: "var(--green)" }}>set as CHANNEL_NICHE</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title" style={{ marginBottom: 14 }}>📈 Growth Tips for AI Channels</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 14 }}>
+          {[
+            { icon: "📌", tip: "Pick one ultra-specific niche", desc: "Better to own 'deep sea fish facts' than 'random facts'" },
+            { icon: "🔁", tip: "Consistency beats quality", desc: "Daily uploads train the algorithm to push your content" },
+            { icon: "🎣", tip: "First 3 seconds are everything", desc: "The AI script starts with a hook — never change this" },
+            { icon: "💬", tip: "Pin a question in comments", desc: "Manually pin a question to boost engagement signals" },
+          ].map((g) => (
+            <div key={g.tip} style={{ padding: 14, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10 }}>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{g.icon}</div>
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{g.tip}</div>
+              <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5 }}>{g.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
