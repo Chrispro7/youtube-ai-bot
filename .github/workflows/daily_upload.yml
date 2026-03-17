@@ -21,9 +21,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install edge-tts moviepy pillow
-          pip install anthropic google-api-python-client
+          pip install edge-tts Pillow anthropic
+          pip install google-api-python-client
           pip install google-auth-oauthlib requests numpy
+          pip install decorator==4.4.2
+          pip install imageio==2.25.1
+          pip install imageio-ffmpeg==0.4.9
+          pip install moviepy==1.0.3
 
       - name: Write YouTube credentials
         env:
