@@ -2,30 +2,31 @@ import os
 import requests
 
 def get_topic(niche):
-    api_key = os.getenv("GEMINI_API_KEY")
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + api_key
+    api_key = os.getenv("GROQ_API_KEY")
+    url = "https://api.groq.com/openai/v1/chat/completions"
 
-    prompt = "Generate ONE punchy YouTube Shorts topic about: " + niche + ". Under 60 characters. No hashtags. No emojis. Just the title only."
-
-    body = {
-        "contents": [
-            {
-                "parts": [
-                    {
-                        "text": prompt
-                    }
-                ]
-            }
-        ]
+    headers = {
+        "Authorization": "Bearer " + api_key,
+        "Content-Type": "application/json"
     }
 
-    r = requests.post(url, json=body)
+    body = {
+        "model": "llama3-8b-8192",
+        "messages": [
+            {
+                "role": "user",
+                "content": "Generate ONE punchy YouTube Shorts topic about: " + niche + ". Under 60 characters. No hashtags. No emojis. Just the title only."
+            }
+        ],
+        "max_tokens": 80
+    }
+
+    r = requests.post(url, json=body, headers=headers)
     data = r.json()
-    print("Gemini response: " + str(data))
+    print("Groq response: " + str(data))
 
-    if "candidates" not in data:
+    if "choices" not in data:
         error = data.get("error", {}).get("message", "Unknown error")
-        raise Exception("Gemini API error: " + error)
+        raise Exception("Groq API error: " + error)
 
-    result = data["candidates"][0]["content"]["parts"][0]["text"]
-    return result.strip()
+    return data["choices"][0]["message"]["content"].strip()
