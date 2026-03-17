@@ -1,1 +1,8 @@
-From the Setup tab
+edge-tts>=6.1.9
+moviepy>=1.0.3
+Pillow>=10.0.0
+anthropic>=0.25.0
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.1.0
+requests>=2.31.0
+numpy>=1.24.0
