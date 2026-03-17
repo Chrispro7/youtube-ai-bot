@@ -722,22 +722,18 @@ def upload_to_youtube(video_path, title, description, tags, category="22"):
     return response
 `;
 
-const actionsYml = `# .github/workflows/daily_upload.yml
-name: 🤖 Daily YouTube AI Upload
+const actionsYml = `name: Daily YouTube AI Upload
 
 on:
   schedule:
-    # Video 1: 8 AM UTC daily
     - cron: "0 8 * * *"
-    # Video 2 (Short): 6 PM UTC daily
     - cron: "0 18 * * *"
-  workflow_dispatch:    # Manual trigger button
+  workflow_dispatch:
 
 jobs:
   upload:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -761,8 +757,8 @@ jobs:
       - name: Run AI pipeline
         env:
           ANTHROPIC_API_KEY: \${{ secrets.ANTHROPIC_API_KEY }}
-          PEXELS_API_KEY:    \${{ secrets.PEXELS_API_KEY }}
-          CHANNEL_NICHE:     \${{ secrets.CHANNEL_NICHE }}
+          PEXELS_API_KEY: \${{ secrets.PEXELS_API_KEY }}
+          CHANNEL_NICHE: \${{ secrets.CHANNEL_NICHE }}
         run: python main.py
 `;
 
@@ -1234,4 +1230,3 @@ function ScheduleTab() {
     </>
   );
 }
-
