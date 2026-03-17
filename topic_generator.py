@@ -20,4 +20,12 @@ Examples: "Why Your Phone Battery Degrades So Fast"
 
     r = requests.post(url, json=body)
     data = r.json()
-    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+
+    # Print full response so we can see any errors
+    print(f"Gemini response: {data}")
+
+    if "candidates" not in data:
+        error = data.get("error", {}).get("message", "Unknown error")
+        raise Exception(f"Gemini API error: {error}")
+
+    return data["candidates"][0]["content
