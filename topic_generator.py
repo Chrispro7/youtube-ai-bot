@@ -3,7 +3,7 @@ import requests
 
 def get_topic(niche):
     api_key = os.getenv("GEMINI_API_KEY")
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + api_key
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + api_key
 
     prompt = "Generate ONE punchy YouTube Shorts topic about: " + niche + ". Under 60 characters. No hashtags. No emojis. Just the title only."
 
