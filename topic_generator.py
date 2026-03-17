@@ -1,8 +1,9 @@
-import anthropic
 import os
+import requests
 
 def get_topic(niche: str) -> str:
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    api_key = os.getenv("GEMINI_API_KEY")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
 
     prompt = f"""Generate ONE punchy, clickable YouTube Shorts topic about: {niche}
 Rules:
@@ -13,9 +14,10 @@ Rules:
 Examples: "Why Your Phone Battery Degrades So Fast"
           "The Hidden Trick in Every ATM" """
 
-    msg = client.messages.create(
-        model="claude-haiku-4-5",
-        max_tokens=80,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return msg.content[0].text.strip
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}]
+    }
+
+    r = requests.post(url, json=body)
+    data = r.json()
+    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
