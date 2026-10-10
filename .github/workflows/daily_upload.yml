@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install edge-tts Pillow anthropic
+          pip install edge-tts "Pillow<10" anthropic
           pip install google-api-python-client
           pip install google-auth-oauthlib requests numpy
           pip install decorator==4.4.2
