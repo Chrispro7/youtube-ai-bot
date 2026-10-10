@@ -18,7 +18,7 @@ def upload_to_youtube(video_path, title, description, tags, category="22"):
             "categoryId": category,
         },
         "status": {
-            "privacyStatus": "public",
+            "privacyStatus": "private",
             "selfDeclaredMadeForKids": False,
         }
     }
